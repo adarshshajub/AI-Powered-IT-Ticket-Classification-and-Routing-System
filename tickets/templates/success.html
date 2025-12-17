@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Ticket Created Successfully{% endblock %}
+{% block content %}
+    <div style="text-align: center; padding: 50px;">
+        <h1 style="color: #28a745;">Incident Created Successfully!</h1>
+        <div style="background-color: #d4edda;
+                    border: 1px solid #c3e6cb;
+                    padding: 20px;
+                    margin: 30px auto;
+                    max-width: 600px;
+                    border-radius: 5px">
+            <h2>Ticket Details</h2>
+            <p>
+                <strong>Ticket ID:</strong> #{{ ticket.id }}
+            </p>
+            <p>
+                <strong>Title:</strong> {{ ticket.title }}
+            </p>
+            <p>
+                <strong>Category:</strong> {{ ticket.get_category_display }}
+            </p>
+            <p>
+                <strong>Created:</strong> {{ ticket.created_at|date:"M d, Y H:i" }}
+            </p>
+            {% if ticket_number %}
+                <hr style="border-color: #c3e6cb;">
+                <h3 style="color: #155724;">ServiceNow Incident Number</h3>
+                <p style="font-size: 24px; font-weight: bold; color: #155724;">{{ ticket_number }}</p>
+            {% endif %}
+            {% if ticket.servicenow_sys_id %}
+                <p>
+                    <a href="https://{{ servicenow_instance }}.service-now.com/nav_to.do?uri=incident.do?sys_id={{ ticket.servicenow_sys_id }}"
+                       target="_blank"
+                       style="color: #155724;
+                              text-decoration: underline">View in ServiceNow →</a>
+                </p>
+            {% endif %}
+        </div>
+        <div style="margin-top: 30px;">
+            <a href="{% url 'create_ticket' %}"
+               style="background-color: #28a745;
+                      color: white;
+                      padding: 12px 30px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      display: inline-block;
+                      margin: 5px">Create Another Ticket</a>
+            <a href="{% url 'ticket_list' %}"
+               style="background-color: #007bff;
+                      color: white;
+                      padding: 12px 30px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      display: inline-block;
+                      margin: 5px">View All Tickets</a>
+        </div>
+    </div>
+{% endblock %}
