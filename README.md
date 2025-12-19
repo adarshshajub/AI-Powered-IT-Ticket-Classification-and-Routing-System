@@ -7,21 +7,47 @@
 ### Manual triaging of IT support tickets is time-consuming, inconsistent, and error-prone. This project automates the analysis, categorization, prioritization, and routing of IT issues using AI techniques, reducing manual effort and improving response times.
 
 ### The system supports:
-  ##### Web-based issue submission
-  ##### Email-based ticket creation
-  ##### AI-driven category & priority prediction
-  ##### Admin and user dashboards
-  ##### ServiceNow integration
-  ##### Secure authentication with email verification
+	-> Web-based issue submission
+	-> Email-based ticket creation
+	-> AI-driven category & priority prediction
+	-> Admin and user dashboards
+	-> ServiceNow integration
+	-> Secure authentication with email verification
 
 ### Key Features
 #### User Features
-  ##### User registration with email verification
-  ##### Secure login with validation messages
-  ##### Submit IT issues via web portal
-  ##### View ticket status and ServiceNow details
-  ##### Profile management (update details, change password)
-  ##### Password reset via email
+	-> User registration with email verification
+	-> Secure login with validation messages
+	-> Submit IT issues via web portal
+	-> View ticket status and ServiceNow details
+	-> Profile management (update details, change password)
+	-> Password reset via email
+
+#### Admin Features
+	-> Custom Admin Dashboard (outside Django Admin)
+	-> View and manage all tickets
+	-> Inline ticket updates (status, assignment, ServiceNow ID)
+	-> Custom user management (list, edit, delete users)
+	-> Monitor AI predictions and ServiceNow sync status
+
+#### AI / ML Features
+
+	-> Transformer-based semantic embeddings using Hugging Face SentenceTransformers
+	-> Custom-trained ML models for:
+		-> Ticket category prediction
+		-> Ticket priority prediction
+	-> Confidence-based AI predictions
+	-> Designed for future continuous learning (human-in-the-loop)
+
+#### Integrations
+
+	-> ServiceNow REST API for incident creation
+	-> Email integration (GMAIL SMTP) for:
+		-> Password reset
+		-> Email-based ticket intake
+		-> Email verification
+
+
 
 ## Config:
 ### Ensure to create a '.env' file in-addition to the above code. This is to declare the environment calling in the setting.py file in the code.  
