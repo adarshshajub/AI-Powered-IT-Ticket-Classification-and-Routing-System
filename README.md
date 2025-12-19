@@ -1,10 +1,10 @@
 # AI-Powered IT Ticket Automation System
 
-### An intelligent IT support automation platform that uses Machine Learning, NLP, and GenAI-assisted semantic embeddings to analyze user-reported issues (via web or email), automatically classify ticket categories and priorities, and integrate with ServiceNow for incident creation and routing.
+<b> An intelligent IT support automation platform that uses Machine Learning, NLP, and GenAI-assisted semantic embeddings to analyze user-reported issues (via web or email), automatically classify ticket categories and priorities, and integrate with ServiceNow for incident creation and routing. <b>
 
 
 ## Overview
-### Manual triaging of IT support tickets is time-consuming, inconsistent, and error-prone. This project automates the analysis, categorization, prioritization, and routing of IT issues using AI techniques, reducing manual effort and improving response times.
+<b> Manual triaging of IT support tickets is time-consuming, inconsistent, and error-prone. This project automates the analysis, categorization, prioritization, and routing of IT issues using AI techniques, reducing manual effort and improving response times. <b>
 
 <h3>The system supports: <h3>
 <ul>
