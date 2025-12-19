@@ -1,4 +1,6 @@
-# AI-Powered-IT-Ticket-Classification-and-Routing-System
+# 🧠 AI-Powered IT Ticket Automation System
+
+## An intelligent IT support automation platform that uses Machine Learning, NLP, and GenAI-assisted semantic embeddings to analyze user-reported issues (via web or email), automatically classify ticket categories and priorities, and integrate with ServiceNow for incident creation and routing.
 
 
 ## Config:
