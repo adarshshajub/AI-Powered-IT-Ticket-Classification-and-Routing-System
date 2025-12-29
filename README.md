@@ -185,20 +185,9 @@ classification logic is trained using project-specific datasets.
 </pre>
 </div>
 
-<div class="section">
-<h2>12. Future Enhancements</h2>
-
-<ul>
-    <li>Self-learning model retraining</li>
-    <li>Real-time email ingestion via Celery Beat</li>
-    <li>Advanced GenAI-based summarization</li>
-    <li>Multi-tenant support</li>
-    <li>Production-grade monitoring (Prometheus/Grafana)</li>
-</ul>
-</div>
 
 <div class="section">
-<h2>13. Conclusion</h2>
+<h2>12. Conclusion</h2>
 
 <p>
 This project demonstrates a complete, scalable, and industry-aligned approach to
