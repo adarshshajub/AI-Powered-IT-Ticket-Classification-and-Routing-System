@@ -12,7 +12,7 @@ Ensure the following are installed on your system:
 ### System Requirements
 - Python **3.10+** (recommended: 3.11)
 - Git
-- Redis (required for Celery)
+- Docker account (required for Celery)
 - ServiceNow Developer Instance (for integration)
 - Email account 
 
@@ -20,12 +20,14 @@ Ensure the following are installed on your system:
 ```bash
 python --version
 git --version
-redis-server --version
+docker --version
 ```
 
 ## 2. Clone the Repository
-- git clone https://github.com/adarshshajub/AI-Powered-IT-Ticket-Automation-System.git
-- cd AI-Powered-IT-Ticket-Automation-System
+```bash
+git clone https://github.com/adarshshajub/AI-Powered-IT-Ticket-Classification-and-Routing-System.git
+cd AI-Powered-IT-Ticket-Classification-and-Routing-System
+```
 
 ## 3. Create Virtual Environment
 ```bash
@@ -65,6 +67,7 @@ SERVICENOW_SYSID= 'your-servicenow-instance-sysid'
 Apply Migrations:
 ```bash
 python manage.py makemigrations
+python manage.py makemigrations account ai dashboard servicenow tickets 
 python manage.py migrate
 ```
 
@@ -72,10 +75,23 @@ Create Superuser (For Admin login):
 ```bash
 python manage.py createsuperuser
 ```
+If you want to override email verification of superuser, run below commands in django shell. 
+```bash
+python manage.py shell
+    from django.contrib.auth import get_user_model
+    User = get_user_model()  
+    user = User.objects.get(username="<your-superuser-name>")
+    profile = getattr(user, "profile", None)
+    profile.email_verified = True
+    profile.save(update_fields=["email_verified"])
+```
+
 
 ## 7. Start Redis (Required for Celery)
 ```bash
-redis-server
+docker pull redis:latest
+docker run -d --name my-redis -p 6379:6379 redis:latest
+docker ps
 ```
 
 ## 8. Start Django Server
@@ -92,6 +108,17 @@ celery -A AI_Powered_IT_Ticket_System worker -l info --pool=solo
 ```bash
 celery -A AI_Powered_IT_Ticket_System beat -l info
 ```
+
+## 11. Start Email Monitoring 
+```bash
+python manage.py mail_monitor
+```
+
+## 12. Add Service-now Group IDs 
+- Login to admin dashboard and open Assignment Group edit
+    (http://127.0.0.1:8000/service-now/admin/assignment-groups/)
+- Add the Group Name and IDs from your service-now
+
 
 
 

@@ -110,9 +110,13 @@ def admin_dashboard(request):
             avg_category=Avg('category_confidence'),
             avg_priority=Avg('priority_confidence')
         )
-
-        category_model_accuracy = round(averages['avg_category'],3)
-        priority_model_accuracy = round(averages['avg_priority'],3)
+        category_model_accuracy =0
+        priority_model_accuracy =0
+        if averages['avg_category'] is not None:
+            category_model_accuracy = round(averages['avg_category'],3)
+        if averages['avg_priority'] is not None:
+            priority_model_accuracy = round(averages['avg_priority'],3)
+        
 
         created_count = snow_synced
         failed_count = failed_tickets

@@ -34,9 +34,13 @@ def ticket_create(request):
             try:
                 ai_input_txt = ticket.title + " " + ticket.description
                 ticket.category = predict_category(ai_input_txt).strip().lower()
-                ticket.category_confidence = round(predict_category_confidence(ai_input_txt),4)*100
+                predict_category_confidence_value = predict_category_confidence(ai_input_txt)
+                if predict_category_confidence_value is not None:
+                    ticket.category_confidence = round(predict_category_confidence_value,4)*100
                 ticket.priority = predict_priority(ai_input_txt)
-                ticket.priority_confidence = round(predict_priority_confidence(ai_input_txt),4)*100
+                predict_priority_confidence_value =predict_priority_confidence(ai_input_txt)
+                if predict_priority_confidence_value is not None:
+                    ticket.priority_confidence = round(predict_priority_confidence_value,4)*100
                 logger.info(f"Predicted category: {ticket.category}, Predicted category confidence: {ticket.category_confidence}, Predicted priority: {ticket.priority}, Predicted priority confidence: {ticket.priority_confidence}")
             except Exception as e:
                 logger.error(f"ML prediction failed: {e}")
@@ -83,9 +87,13 @@ def email_ticket_create(email_uid, sender, subject, body, raw_email, user, accou
     # create the ticket if not exists
     ai_input_txt = subject + " " + body
     predicted_category = predict_category(ai_input_txt).strip().lower()
-    predicted_category_confidence = round(predict_category_confidence(ai_input_txt),4)*100
+    predicted_category_confidence_value = predict_category_confidence(ai_input_txt)
+    if predicted_category_confidence_value is not None:
+        predicted_category_confidence=round(predicted_category_confidence_value,4)*100
     predicted_priority = predict_priority(ai_input_txt)
-    predicted_priority_confidence = round(predict_priority_confidence(ai_input_txt),4)*100
+    predicted_priority_confidence_value = predict_priority_confidence(ai_input_txt)
+    if predicted_priority_confidence_value is not None:
+        predicted_priority_confidence=round(predicted_priority_confidence_value,4)*100
     logger.info(f"Predicted category: {predicted_category}, Predicted category confidence: {predicted_category_confidence}, Predicted priority: {predicted_priority}, Predicted priority confidence: {predicted_priority_confidence}")
 
     group = AssignmentGroup.objects.filter(category=predicted_category.lower()).first()
