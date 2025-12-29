@@ -2,6 +2,7 @@ import logging
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives, get_connection
+from tickets.models import EmailTicket
 
 """Utility functions for sending emails using different email tickets configured in Django settings."""
 
@@ -69,5 +70,6 @@ def send_email_reply(
         )
         raise
 
+    EmailTicket.objects.update(reply_sent=True)
     logger.info(
         f"Reply email sent successfully to {to_email} for ticket {ticket_number}.")

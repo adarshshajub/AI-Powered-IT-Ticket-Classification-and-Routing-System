@@ -27,7 +27,7 @@
                 <h3 style="color: #155724;">ServiceNow Incident Number</h3>
                 <p style="font-size: 24px; font-weight: bold; color: #155724;">{{ ticket_number }}</p>
             {% endif %}
-            {% if ticket.servicenow_sys_id %}
+            {% if ticket.servicenow_sys_id and user.is_staff %}
                 <p>
                     <a href="https://{{ servicenow_instance }}.service-now.com/nav_to.do?uri=incident.do?sys_id={{ ticket.servicenow_sys_id }}"
                        target="_blank"

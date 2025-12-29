@@ -13,8 +13,11 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
-from .utils.mailer import send_email_reply
+from tickets.utils.task  import send_email_replay_with_ticket
 from ai.views import predict_category, predict_category_confidence, predict_priority, predict_priority_confidence
+from servicenow.utils.task import process_ticket_task
+from servicenow.models import AssignmentGroup
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -30,22 +33,33 @@ def ticket_create(request):
             # Predict category
             try:
                 ai_input_txt = ticket.title + " " + ticket.description
-                ticket.category = predict_category(ai_input_txt)
-                ticket.category_confidence = round(predict_category_confidence(ai_input_txt),4)
+                ticket.category = predict_category(ai_input_txt).strip().lower()
+                ticket.category_confidence = round(predict_category_confidence(ai_input_txt),4)*100
                 ticket.priority = predict_priority(ai_input_txt)
-                ticket.priority_confidence = round(predict_priority_confidence(ai_input_txt),4)
+                ticket.priority_confidence = round(predict_priority_confidence(ai_input_txt),4)*100
                 logger.info(f"Predicted category: {ticket.category}, Predicted category confidence: {ticket.category_confidence}, Predicted priority: {ticket.priority}, Predicted priority confidence: {ticket.priority_confidence}")
             except Exception as e:
                 logger.error(f"ML prediction failed: {e}")
                 if not ticket.category:
                     ticket.category = "application"
+                if not ticket.priority:
+                    ticket.priority = "high"
 
-            # Save with pending status
+            group = AssignmentGroup.objects.filter(category=ticket.category.lower()).first()
+            if group:
+                ticket.assigned_team = group
+            ticket.assignment_group_id = group.servicenow_group_id
             ticket.ticket_creation_status = "pending"
             ticket.created_by = request.user
             ticket.save()
 
             logger.info(f"Ticket #{ticket.id} created")
+
+            try:
+                process_ticket_task.delay(ticket.id)
+            except Exception: 
+                error = ticket.error_message
+                logger.error(f"ServiceNow Error: {error}")
 
             # Redirect to waiting page that will poll for status
             return redirect("tickets:ticket_processing", ticket_id=ticket.id)
@@ -67,11 +81,16 @@ def email_ticket_create(email_uid, sender, subject, body, raw_email, user, accou
         return email_ticket.ticket, email_ticket
 
     # create the ticket if not exists
-    ai_input_txt =  subject + " " + body
-    predicted_category = predict_category(ai_input_txt)
-    predicted_category_confidence = round(predict_category_confidence(ai_input_txt),4)
+    ai_input_txt = subject + " " + body
+    predicted_category = predict_category(ai_input_txt).strip().lower()
+    predicted_category_confidence = round(predict_category_confidence(ai_input_txt),4)*100
     predicted_priority = predict_priority(ai_input_txt)
-    predicted_priority_confidence = round(predict_priority_confidence(ai_input_txt),4)
+    predicted_priority_confidence = round(predict_priority_confidence(ai_input_txt),4)*100
+    logger.info(f"Predicted category: {predicted_category}, Predicted category confidence: {predicted_category_confidence}, Predicted priority: {predicted_priority}, Predicted priority confidence: {predicted_priority_confidence}")
+
+    group = AssignmentGroup.objects.filter(category=predicted_category.lower()).first()
+    if group:
+        assigned_team = group
 
     logger.debug(f"Creating ticket for email UID {email_uid} from sender {sender}")
     with transaction.atomic():
@@ -82,8 +101,11 @@ def email_ticket_create(email_uid, sender, subject, body, raw_email, user, accou
             category_confidence=predicted_category_confidence,
             priority=predicted_priority,
             priority_confidence=predicted_priority_confidence,
+            assigned_team = assigned_team,
+            assignment_group_id = group.servicenow_group_id,
             created_by=user,  
             request_type="email",
+            ticket_creation_status = "pending",
         )
     logger.debug(f"Ticket #{ticket.id} created for email UID {email_uid}")
 
@@ -107,10 +129,12 @@ def email_ticket_create(email_uid, sender, subject, body, raw_email, user, accou
         email_ticket.save(update_fields=["ticket"])
         logger.debug(f"Linked EmailTicket UID {email_uid} to Ticket #{ticket.id}")
 
-    logger.debug(f"Sending email reply to {sender} with ticket number.")
-    ticket_number = Ticket.objects.filter(id=ticket.id).first().servicenow_ticket_number
-    send_email_reply(account_key, ticket_number, sender, subject)
-    logger.debug(f"Email reply sent to {sender} for Ticket #{ticket.id}")
+    try:
+        process_ticket_task.delay(ticket.id)
+        send_email_replay_with_ticket.delay()
+    except Exception: 
+        error = ticket.error_message
+        logger.error(f"Error: {error}")
     return ticket, email_ticket
 
 # Ticket processing view - shows status while syncing
@@ -136,7 +160,7 @@ def ticket_success(request, ticket_id):
     # Ensure ticket is actually synced
     if ticket.ticket_creation_status != "created":
         return redirect("tickets:ticket_processing", ticket_id=ticket.id)
-    context = {"ticket": ticket, "ticket_number": ticket.servicenow_ticket_number}
+    context = {"ticket": ticket, "ticket_number": ticket.servicenow_ticket_number, "servicenow_instance": settings.SERVICENOW_INSTANCE}
     return render(request, "tickets/success.html", context)
 
 # Ticket success view
@@ -149,9 +173,9 @@ def ticket_error(request, ticket_id):
         return redirect("tickets:ticket_success", ticket_id=ticket.id)
     context = {
         "ticket": ticket,
-        "error": ticket.error_message or "Failed to sync with ServiceNow",
+        "error": "Failed to sync with ServiceNow",
     }
-
+    logger.error(f"{ticket.error_message}")
     return render(request, "tickets/error.html", context)
 
 # Check ticket status API 
@@ -173,11 +197,15 @@ def retry_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if ticket.ticket_creation_status in ["failed", "pending"]:
-        ticket.sync_attempts = 0
+        ticket.sync_attempts +=1
         ticket.ticket_creation_status = "pending"
         ticket.save()
 
-        # sync_ticket_to_servicenow(ticket.id, retry_count=0, schedule=0)
+        try:
+            process_ticket_task.delay(ticket.id)
+        except Exception: 
+            error = ticket.error_message
+            logger.error(f"ServiceNow Error: {error}")
         return redirect("tickets:ticket_processing", ticket_id=ticket_id)
     else:
         messages.info(
@@ -197,24 +225,20 @@ def ticket_list(request):
     else:
         all_user_qs = Ticket.objects.filter(created_by=user).order_by("-created_at")
 
-    category_filter = request.GET.get("category", "").strip()
-    status_filter = request.GET.get("status", "").strip()
     search_q = request.GET.get("q", "").strip()
 
-    if category_filter:
-        all_user_qs = all_user_qs.filter(category=category_filter)
-    if status_filter:
-        all_user_qs = all_user_qs.filter(ticket_creation_status=status_filter)
     if search_q:
         all_user_qs = all_user_qs.filter(
             Q(title__icontains=search_q)
             | Q(description__icontains=search_q)
             | Q(servicenow_ticket_number__icontains=search_q)
+            | Q(category__icontains=search_q)
         )
 
-    paginator = Paginator(all_user_qs, 10)  # 8 tickets per page
+    paginator = Paginator(all_user_qs, 10)  # 10 tickets per page
     page_obj = paginator.get_page(page_number)
     tickets_page = page_obj.object_list
+
     context = {
         "tickets": tickets_page,
         "is_paginated": page_obj.has_other_pages(),
@@ -284,7 +308,9 @@ def admin_update_ticket(request, ticket_id):
             changed = True
 
     if assigned_team is not None and assigned_team != ticket.assigned_team:
-        ticket.assigned_team = assigned_team
+        group = AssignmentGroup.objects.filter(name=assigned_team).first()
+        if group:
+            ticket.assigned_team = group
         changed = True
 
     if (

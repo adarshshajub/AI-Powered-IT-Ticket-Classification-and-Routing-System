@@ -23,8 +23,17 @@
       <div class="col-12 col-md-3">
         <div class="card card-compact p-3 h-100">
           <div>
-            <div class="stat-label">Predicted Accuracy</div>
-            <div class="stat-value">{{ model_accuracy|default:"--" }}%</div>
+            <div class="stat-label">Category Predicted Accuracy</div>
+            <div class="stat-value">{{ category_model_accuracy|default:"--" }}%</div>
+            <small class="text-muted">Validation set</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-compact p-3 h-100">
+          <div>
+            <div class="stat-label">Priority Predicted Accuracy</div>
+            <div class="stat-value">{{ priority_model_accuracy|default:"--" }}%</div>
             <small class="text-muted">Validation set</small>
           </div>
         </div>
@@ -69,7 +78,7 @@
         <div class="card card-compact p-3 h-100">
           <div>
             <div class="stat-label">ServiceNow Failed</div>
-            <div class="stat-value text-info">{{ failed_ticketsx|default:"0" }}</div>
+            <div class="stat-value text-info">{{ failed_tickets|default:"0" }}</div>
             <small class="text-muted">Incidents failed</small>
           </div>
         </div>
@@ -84,7 +93,7 @@
             <small class="text-muted">Last 30 days</small>
           </div>
           <div style="height:245px;">
-            <canvas id="catChart" aria-label="Tickets by category chart"></canvas>
+            <canvas id="catChart" height="245" aria-label="Tickets by category chart"></canvas>
           </div>
         </div>
         <div class="card card-compact p-3">
@@ -157,31 +166,7 @@
             <div class="d-flex gap-2 align-items-center"
                  style="margin-left:auto;
                         padding-right: 1.4rem">
-              <form method="get" class="d-flex gap-2 align-items-center">
-                <select name="category"
-                        class="form-select form-select-sm"
-                        style="width: auto">
-                  <option value="">All categories</option>
-                  <option value="cloud">Cloud</option>
-                  <option value="unix">Unix</option>
-                  <option value="network">Network</option>
-                  <option value="database">Database</option>
-                  <option value="application">Application</option>
-                </select>
-                <select name="status" class="form-select form-select-sm" style="width: auto;">
-                  <option value="">All status</option>
-                  <option value="pending">Pending</option>
-                  <option value="created">Created</option>
-                  <option value="failed">Failed</option>
-                  <!-- <option value="retrying">Retrying</option> -->
-                </select>
-                <!-- <input type="text"
-        name="q"
-        class="form-control form-control-sm"
-        style="width: 200px"
-        placeholder="Search title / description"> -->
-                <button class="btn btn-sm btn-primary" type="submit">Filter</button>
-              </form>
+
               <a class="btn btn-sm btn-primary"
                  href="{% url 'tickets:ticket_list' %}"
                  class="btn btn-link btn-sm">Expand</a>
@@ -191,75 +176,30 @@
             <table class="table table-hover align-middle mb-0">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th style="min-width: 20px">ID</th>
                   <th style="min-width: 200px">Title</th>
-                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Sync Status</th>
+                  <th>Assigned Team</th>
+                  <th>ServiceNow</th>
                   <th>Created</th>
-                  <th style="min-width:360px">
-                    <div class="d-flex gap-2 ">
-                      <span style="width:150px;">Status</span>
-                      <span style="width:160px;">Team</span>
-                      <span style="width:140px;">ServiceNow</span>
-                      <span style="width:60px;">Action</span>
-                    </div>
-                  </th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {% for ticket in tickets %}
                   <tr id="ticket-row-{{ ticket.id }}">
                     <td>{{ ticket.id }}</td>
-                    <td style="max-width:200px;">{{ ticket.title|truncatechars:60 }}</td>
-                    <td>{{ ticket.get_category_display }}</td>
+                    <td style="max-width:250px;">{{ ticket.title|truncatechars:50 }}</td>
+                    <td style="text-transform: capitalize;">{{ ticket.servicenow_ticket_status }}</td>
+                    <td style="text-transform: capitalize;">{{ ticket.ticket_creation_status }}</td>
+                    <td>{{ ticket.assigned_team.name }}</td>
+                    <td>{{ ticket.servicenow_ticket_number|default:"—" }}</td>
                     <td>{{ ticket.created_at|date:"Y-m-d H:i" }}</td>
-                    <!-- Admin inline edit form (AJAX-enabled, falls back to normal POST) -->
-                    <td>
-                      <form method="post"
-                            action="/tickets/admin-ticket-update/{{ ticket.id }}/"
-                            class="admin-inline-edit d-flex gap-2 align-items-center position-relative w-100"
-                            style="align-items:flex-start">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <!-- Status select -->
-                        <select name="ticket_creation_status"
-                                class="form-select form-select-sm"
-                                style="width:150px">
-                          <option value="pending"
-                                  {% if ticket.ticket_creation_status == "pending" %}selected{% endif %}>
-                            Pending
-                          </option>
-                          <option value="created"
-                                  {% if ticket.ticket_creation_status == "created" %}selected{% endif %}>
-                            Created
-                          </option>
-                          <option value="failed"
-                                  {% if ticket.ticket_creation_status == "failed" %}selected{% endif %}>Failed</option>
-                          <!-- <option value="retrying"
-                                  {% if ticket.ticket_creation_status == "retrying" %}selected{% endif %}>
-                            Retrying
-                          </option> -->
-                        </select>
-                        <!-- Assigned team -->
-                        <input name="assigned_team"
-                               value="{{ ticket.assigned_team }}"
-                               class="form-control form-control-sm"
-                               style="max-width:160px"
-                               placeholder="Assigned team">
-                        <!-- ServiceNow -->
-                        <input name="servicenow_ticket_number"
-                               value="{{ ticket.servicenow_ticket_number }}"
-                               class="form-control form-control-sm"
-                               style="max-width:140px"
-                               placeholder="SN #">
-                        <!-- Save button -->
-                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                        <!-- Saved message aligned to the right -->
-                        <div class="small text-success position-absolute end-0 me-2 d-none"
-                             id="saved-msg-{{ ticket.id }}"
-                             style="top: 50%;
-                                    transform: translateY(-50%)">Saved</div>
-                      </form>
-                    </td> 
+                    <td class="text-info">
+                      <a href="{% url 'tickets:ticket_detail' ticket.id %}"
+                         class="btn btn-sm btn-outline-secondary">View</a>
+                    </td>
                   </tr>
                 {% empty %}
                   <tr>
@@ -301,10 +241,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
   // Provide safe defaults if context variables missing
-  const categoryLabels = {{ category_labels|default:"['Cloud','Unix','Network','Database','Application']" | safe }};
-  const categoryData = {{ category_counts|default:"[120,80,65,40,95]" | safe }};
-  const timeLabels = {{ time_labels|default:"['Day-6','Day-5','Day-4','Day-3','Day-2','Day-1','Today']" | safe }};
-  const timeData = {{ time_counts|default:"[2,4,6,8,10,12,9]" | safe }};
+  const categoryLabels = {{ category_labels|default:"['Cloud','Unix','Network','Database','Application','Security','Virtualization','Storage','Monitoring','DevOps','Hardware','Email','Backup','Vendor']" | safe }};
+  const categoryData = {{ category_counts|default:"[120,80,65,40,95,120,80,65,40,95,120,80,65,40]" | safe }};
+  const timeLabels = {{ time_labels | safe }};
+  const timeData = {{ time_counts | safe }};
 
   // Category doughnut
   (function(){
@@ -314,7 +254,7 @@
       type: 'doughnut',
       data: {
         labels: categoryLabels,
-        datasets: [{ data: categoryData, backgroundColor: ['#0d6efd','#6f42c1','#fd7e14','#20c997','#e83e8c'] }]
+        datasets: [{ data: categoryData, backgroundColor: ['#0d6efd','#6f42c1','#fd7e14','#20c997','#e83e8c','#FF8A73','#8A1600','#D143A9','#D14369', '#94905C','#79AD49','#209184','#A3A3A3','#BC43D1'] }]
       },
       options: { plugins:{ legend:{ position:'bottom' } }, maintainAspectRatio:false }
     });
@@ -328,8 +268,9 @@
       type: 'bar',
       data: { labels: timeLabels, datasets: [{ label:'Tickets', data: timeData, backgroundColor: '#0d6efd' }] },
       options: {
+        responsive: true,
         maintainAspectRatio:false,
-        scales: { y: { beginAtZero:true, ticks:{ stepSize: 1 } } }
+        scales: { y: { beginAtZero:true } }
       }
     });
   })();

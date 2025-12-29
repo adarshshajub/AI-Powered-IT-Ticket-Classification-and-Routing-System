@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from servicenow.models import AssignmentGroup
 
 """Models for IT Ticket Automation System"""
 
@@ -36,15 +37,20 @@ class Ticket(models.Model):
 
     title = models.CharField(max_length=200)
     description = models.TextField()
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     category_confidence = models.FloatField(default=0, blank=True)
-    priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES, blank=True)
+    priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES)
     priority_confidence = models.FloatField(default=0, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="tickets"
     )
-    assigned_team = models.CharField(max_length=100, blank=True)
+    assigned_team =  models.ForeignKey(
+        AssignmentGroup,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     ticket_creation_status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default="pending"
     )
@@ -55,7 +61,7 @@ class Ticket(models.Model):
     servicenow_sys_id = models.CharField(max_length=100, blank=True, null=True)
     assignment_group_id = models.CharField(
         max_length=100, blank=True, null=True
-    )  # Store group sys_id
+    )  
     sync_attempts = models.IntegerField(default=0)
     last_sync_attempt = models.DateTimeField(null=True, blank=True)
     error_message = models.TextField(blank=True, null=True)
@@ -64,7 +70,7 @@ class Ticket(models.Model):
     )
 
     def __str__(self):
-        return f"Issue: {self.title} - Ticket: {self.servicenow_ticket_number} - Status: {self.ticket_creation_status}"
+        return f"Issue: {self.title} - Ticket: {self.servicenow_ticket_number} - Status: {self.ticket_creation_status} - Category:{self.category}"
 
 # Email ticket model 
 class EmailTicket(models.Model):
@@ -96,4 +102,5 @@ class EmailTicket(models.Model):
 
     def __str__(self):
         # show subject or fallback to uid
-        return f"{self.subject or self.uid} — {self.sender or '-'}"
+        return f"{self.subject or self.uid} - {self.sender or '-'} "
+    

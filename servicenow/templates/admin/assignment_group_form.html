@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+  <h3 class="mb-3">Assignment Groups</h3><br>
+  <div class="d-flex justify-content-center">
+    <div class="card-compact p-4" style="max-width: 800px; width: 100%;">
+      <h4 class="mb-3">{{ title }}</h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label" style="font-size: smaller;">Name</label>
+          {{ form.name|add_class:"form-control"|attr:"placeholder:Enter name" }}
+          {% for error in form.name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" style="font-size: smaller;">Servicenow group id</label>
+          {{ form.servicenow_group_id|add_class:"form-control"|attr:"placeholder:Enter servicenow group id" }}
+          {% for error in form.servicenow_group_id.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="row mb-3 align-items-center" >
+          <div class="col-md-6 mb-3">
+            <label class="form-label" style="font-size: smaller;">Category</label>
+            {{ form.category|add_class:"form-control"|attr:"placeholder:Enter category" }}
+            {% for error in form.category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label"  style="font-size: smaller;">Active</label><br>
+            {{ form.is_active|add_class:"form-control-input" }}
+            {% if form.is_active.help_text %}<div class="form-text">{{ form.is_active.help_text|safe }}</div>{% endif %}
+            {% for error in form.is_active.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{% url 'servicenow:assignment_group_list' %}"
+             class="btn btn-outline-secondary">Cancel</a>
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

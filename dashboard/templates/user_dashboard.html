@@ -98,8 +98,8 @@
               <tr id="ticket-row-{{ ticket.id }}">
                 <td>{{ ticket.id }}</td>
                 <td style="max-width:250px;">{{ ticket.title|truncatechars:50 }}</td>
-                <td>{{ ticket.servicenow_ticket_status }}</td>
-                <td>{{ ticket.get_category_display }}</td>
+                <td style="text-transform: capitalize;">{{ ticket.servicenow_ticket_status }}</td>
+                <td style="max-width:100px;">{{ ticket.assigned_team.name }}</td>
                 <td>{{ ticket.servicenow_ticket_number|default:"—" }}</td>
                 <td>{{ ticket.created_at|date:"Y-m-d H:i" }}</td>
                  <td class="text-info">

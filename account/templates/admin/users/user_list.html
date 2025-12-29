@@ -5,7 +5,10 @@
 {% block content %}
   {% if messages %}
     {% for m in messages %}
-      <div class="alert alert-{{ m.tags }}">{{ m }}</div>
+      <div class="alert alert-{{ m.tags }} alert-dismissible fade show">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
     {% endfor %}
   {% endif %}
 
@@ -43,7 +46,13 @@
               <td>{{ u.id }}</td>
               <td>{{ u.username }}</td>
               <td>{{ u.email }}</td>
-              <td>{{ u.is_active|yesno:"Yes,No" }}</td>
+              <td>
+                 {% if u.is_active %}
+                    <span class="badge bg-success">Active</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                  {% endif %}
+              </td>
               <td>{{ u.is_staff|yesno:"Yes,No" }}</td>
               {% if user.is_superuser %}<td>{{ u.is_superuser|yesno:"Yes,No" }}</td>{% endif %}
               <td>

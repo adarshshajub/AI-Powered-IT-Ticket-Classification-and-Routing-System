@@ -12,13 +12,13 @@
         {% csrf_token %}
         <!-- Title -->
         <div class="mb-3">
-          <label class="form-label">Title</label>
+          <label class="form-label">Title <span style="color: rgb(191, 12, 12);">*</span></label>
           {{ form.title|add_class:"form-control"|attr:"placeholder:Short summary of the issue" }}
           {% for error in form.title.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
         </div>
         <!-- Description -->
         <div class="mb-3">
-          <label class="form-label">Description</label>
+          <label class="form-label">Description <span style="color: rgb(191, 12, 12);">*</span></label>
           {{ form.description|add_class:"form-control"|attr:"rows:6"|attr:"placeholder:Describe the issue in detail" }}
           {% for error in form.description.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
         </div>

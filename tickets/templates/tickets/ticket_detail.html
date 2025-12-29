@@ -43,8 +43,8 @@
                     {% if user.is_staff %}
                         <div class="col-md-6">
                             <div class="p-3 rounded bg-light">
-                                <div class="small text-muted">AI Category Confidence <small>(Max value is 1)</small></div>
-                                <div class="fw-semibold fs-6">{{ ticket.category_confidence }}</div>
+                                <div class="small text-muted">AI Category Confidence </div>
+                                <div class="fw-semibold fs-6">{{ ticket.category_confidence }}<small> %</small></div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -55,8 +55,8 @@
                         </div>
                          <div class="col-md-6">
                             <div class="p-3 rounded bg-light">
-                                <div class="small text-muted">AI Priority Confidence <small>(Max value is 1)</small></div>
-                                <div class="fw-semibold fs-6">{{ ticket.priority_confidence }}</div>
+                                <div class="small text-muted">AI Priority Confidence </div>
+                                <div class="fw-semibold fs-6">{{ ticket.priority_confidence }}<small> %</small></div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -69,7 +69,7 @@
                     <div class="col-md-6">
                         <div class="p-3 rounded bg-light">
                             <div class="small text-muted">Assigned Team</div>
-                            <div class="fw-semibold fs-6">{{ ticket.assigned_team|default:"—" }}</div>
+                            <div class="fw-semibold fs-6">{{ ticket.assigned_team.name|default:"—" }}</div>
                         </div>
                     </div>
                     {% if user.is_staff %}

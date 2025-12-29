@@ -24,5 +24,6 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('ai/', include('ai.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('service-now/', include('servicenow.urls')),
     path('', views.home, name='home'),  # Default to home view
 ]

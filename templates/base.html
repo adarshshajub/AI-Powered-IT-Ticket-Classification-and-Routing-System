@@ -109,7 +109,6 @@
     }
   </style>
 </head>
-
 <body>
   <!-- TOP NAV -->
   <header class="topbar">
@@ -126,7 +125,7 @@
         <form class="d-none d-md-flex ms-3" method="get" action="{% url 'tickets:ticket_list' %}">
           <div class="input-group">
             <input name="q" type="search" class="form-control form-control-sm" style="width: 300px;"
-              placeholder="Search tickets, title, description">
+              placeholder="Search tickets, title, description, team">
             <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa fa-search"></i></button>
           </div>
         </form>
@@ -150,6 +149,7 @@
             </li>
             {% if user.is_staff %}
             <li><a class="dropdown-item" href="{% url 'account:admin_user_list' %}"><i class="fas fa-users me-2"></i>Users</a></li>
+            <li><a class="dropdown-item" href="{% url 'servicenow:assignment_group_list' %}"><i class="fa fa-list me-2"></i>Service-now</a></li>
             {% endif %}
             <li>
               <hr class="dropdown-divider">

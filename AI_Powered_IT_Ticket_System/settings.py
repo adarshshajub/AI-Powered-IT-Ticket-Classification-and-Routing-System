@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from celery.schedules import crontab
 
 load_dotenv()
 
@@ -32,6 +33,10 @@ INSTALLED_APPS = [
     'account', 
     'ai',
     'dashboard',
+    'servicenow',
+    'background_task',
+    'django_celery_results',
+    'django_celery_beat',
 ]   
 
 MIDDLEWARE = [
@@ -182,3 +187,32 @@ EMAIL_IMAP_PORT = os.getenv('EMAIL_IMAP_PORT')
 # Site Configuration
 DEFAULT_SITE_SCHEME=os.getenv('DEFAULT_SITE_SCHEME','http')
 DEFAULT_SITE_DOMAIN=os.getenv('DEFAULT_SITE_DOMAIN')
+
+# ServiceNow Configuration
+SERVICENOW_INSTANCE = os.getenv('SERVICENOW_INSTANCE')
+SERVICENOW_USERNAME = os.getenv('SERVICENOW_USERNAME')
+SERVICENOW_PASSWORD = os.getenv('SERVICENOW_PASSWORD')
+SERVICENOW_SYSID = os.getenv('SERVICENOW_SYSID')
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TIMEZONE = TIME_ZONE
+
+
+CELERY_BEAT_SCHEDULE = {
+    "sync-servicenow-ticket-status-every-10-min": {
+        "task": "servicenow.utils.task.sync_servicenow_ticket_statuses",
+        "schedule": crontab(minute="*/10"),  # every 10 minutes
+    },
+    "retry-servicenow-ticket-creation-every-10-min": {
+        "task": "servicenow.utils.task.servicenow_ticket_retry",
+        "schedule": crontab(minute="*/10"),  # every 10 minutes
+    },
+    "check-email-replay-status-every-10-min": {
+        "task": "tickets.utils.task.send_email_replay_with_ticket",
+        "schedule": crontab(minute="*/5"),  # every 10 minutes
+    },
+}
