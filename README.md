@@ -183,6 +183,8 @@ classification logic is trained using project-specific datasets.
 7. Start Celery beat
 8. Run Django server
 </pre>
+
+<a href="https://github.com/adarshshajub/AI-Powered-IT-Ticket-Classification-and-Routing-System/blob/main/config.md">Click here for the Configuration & Setup Guide</a>
 </div>
 
 
@@ -194,10 +196,6 @@ This project demonstrates a complete, scalable, and industry-aligned approach to
 automating IT ticket management using AI, ML, and modern backend technologies.
 It is suitable for academic evaluation as well as real-world enterprise extensions.
 </p>
-</div>
-
-<div>
-    <a href="https://github.com/adarshshajub/AI-Powered-IT-Ticket-Classification-and-Routing-System/blob/main/config.md">Click here for the Configuration & Setup Guide</a> 
 </div>
 
 </body>
