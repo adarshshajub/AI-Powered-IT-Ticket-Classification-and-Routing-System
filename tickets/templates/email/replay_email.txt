@@ -1,0 +1,11 @@
+Hello,
+
+Thank you for contacting us. Your request has been received and a support ticket has been created.
+
+Ticket Number: {{ticket_number}}
+
+Our support team will review your request and respond as soon as possible. 
+Please reference this ticket number in any future correspondence regarding this issue.
+
+Best regards,
+Support Team

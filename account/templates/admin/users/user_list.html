@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert alert-{{ m.tags }} alert-dismissible fade show">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+    {% endfor %}
+  {% endif %}
+
+  <div>
+    <h3 class="mb-3">User Management</h3>
+    <small class="text-muted">
+      You logged in as user - {{ request.user.username }}
+      {% if user.is_superuser %}
+        (Superuser)
+      {% elif user.is_active %}
+        (Staff)
+      {% endif %}
+    </small>
+  </div>
+
+  <br>
+
+  <div class="d-flex justify-content-center">
+    <div class="card-compact p-4" style="max-width: 1500px; width: 100%;">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Active</th>
+            <th>Staff</th>
+            {% if user.is_superuser %}<th>Superuser</th>{% endif %}
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td>{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email }}</td>
+              <td>
+                 {% if u.is_active %}
+                    <span class="badge bg-success">Active</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                  {% endif %}
+              </td>
+              <td>{{ u.is_staff|yesno:"Yes,No" }}</td>
+              {% if user.is_superuser %}<td>{{ u.is_superuser|yesno:"Yes,No" }}</td>{% endif %}
+              <td>
+                <a href="{% url 'account:admin_user_edit' u.id %}"
+                   class="btn btn-sm btn-outline-primary">Edit</a>
+                {% if user.is_superuser %}
+                  <!-- Trigger modal instead of going directly to delete URL -->
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger admin-open-delete-modal"
+                          data-user-id="{{ u.id }}"
+                          data-username="{{ u.username }}">
+                    Delete
+                  </button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Overlay + modal (centered, background dimmed) -->
+  <div id="admin-delete-overlay" class="admin-delete-overlay admin-d-none"></div>
+
+  <div id="admin-delete-modal" class="admin-delete-modal admin-d-none">
+    <div class="admin-delete-modal-content">
+      <h5 class="mb-3">Confirm delete</h5>
+      <p id="admin-delete-text">Are you sure you want to delete this user?</p>
+      <form id="admin-delete-form" method="post">
+        {% csrf_token %}
+        <div class="mt-4 d-flex justify-content-end admin-gap-2">
+          <button type="button" class="btn btn-secondary btn-sm" id="admin-cancel-delete">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-danger btn-sm">
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .admin-delete-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 900; 
+    }
+
+    .admin-delete-modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100; 
+    }
+
+    .admin-delete-modal-content {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .admin-d-none {
+      display: none !important;
+    }
+
+    .admin-gap-2 {
+      gap: 0.5rem;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modal = document.getElementById('admin-delete-modal');
+      const overlay = document.getElementById('admin-delete-overlay');
+      const deleteText = document.getElementById('admin-delete-text');
+      const deleteForm = document.getElementById('admin-delete-form');
+      const cancelBtn = document.getElementById('admin-cancel-delete');
+
+      function openModal(userId, username) {
+        deleteText.textContent = `Are you sure you want to delete user "${username}"?`;
+        // Use dummy id 0 in URL and replace it with the actual id
+        deleteForm.action = `{% url 'account:admin_user_delete' 0 %}`.replace('/0/', `/${userId}/`);
+        modal.classList.remove('admin-d-none');
+        overlay.classList.remove('admin-d-none');
+        document.body.classList.add('modal-open');
+      }
+
+      function closeModal() {
+        modal.classList.add('admin-d-none');
+        overlay.classList.add('admin-d-none');
+        document.body.classList.remove('modal-open');
+      }
+
+      document.querySelectorAll('.admin-open-delete-modal').forEach(btn => {
+        btn.addEventListener('click', function () {
+          openModal(this.dataset.userId, this.dataset.username);
+        });
+      });
+
+      cancelBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', closeModal);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Edit Ticket #{{ ticket.id }}{% endblock %}
+{% block content %}
+
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h4 class="fw-semibold mb-3">Edit Ticket #{{ ticket.id }}</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Title <span style="color: rgb(191, 12, 12);">*</span></label>
+                            {{ form.title }}
+                            {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Description <span style="color: rgb(191, 12, 12);">*</span></label>
+                            {{ form.description }}
+                            {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assigned Team</label>
+                            {{ form.assigned_team }}
+                            {% if form.assigned_team.errors %}<div class="text-danger small mt-1">{{ form.assigned_team.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Sync Status</label>
+                            {{ form.ticket_creation_status }}
+                            {% if form.ticket_creation_status.errors %}<div class="text-danger small mt-1">{{ form.ticket_creation_status.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">ServiceNow Ticket #</label>
+                            {{ form.servicenow_ticket_number }}
+                            {% if form.servicenow_ticket_number.errors %}<div class="text-danger small mt-1">{{ form.servicenow_ticket_number.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">ServiceNow Ticket Status</label>
+                            {{ form.servicenow_ticket_status }}
+                            {% if form.servicenow_ticket_status.errors %}<div class="text-danger small mt-1">{{ form.servicenow_ticket_status.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'tickets:ticket_detail' ticket.id %}"
+                           class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

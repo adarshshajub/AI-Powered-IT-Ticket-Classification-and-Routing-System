@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Ticket #{{ ticket.id }}{% endblock %}
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                 role="alert">
+                {{ message }}
+                <button class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container-xxl mt-4">
+        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h4 class="fw-semibold mb-1">Ticket #{{ ticket.id }} — {{ ticket.title }}</h4>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-person"></i> Reported by:
+                            <strong>{{ ticket.created_by |default:"System" }}</strong>
+                            &nbsp;&bull;&nbsp;
+                            <i class="bi bi-clock"></i> {{ ticket.created_at|date:"d M Y, h:i A" }}
+                        </p>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <!-- Description -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-secondary">Description</h6>
+                    <p class="mb-0" style="white-space: pre-line;">{{ ticket.description }}</p>
+                </div>
+                <!-- Metadata -->
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded bg-light">
+                            <div class="small text-muted">AI Category</div>
+                            <div class="fw-semibold fs-6">{{ ticket.get_category_display }}</div>
+                        </div>
+                    </div>
+                    {% if user.is_staff %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded bg-light">
+                                <div class="small text-muted">AI Category Confidence </div>
+                                <div class="fw-semibold fs-6">{{ ticket.category_confidence }}<small> %</small></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded bg-light">
+                                <div class="small text-muted">AI Priority </div>
+                                <div class="fw-semibold fs-6">{{ ticket.get_priority_display  }}</div>
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <div class="p-3 rounded bg-light">
+                                <div class="small text-muted">AI Priority Confidence </div>
+                                <div class="fw-semibold fs-6">{{ ticket.priority_confidence }}<small> %</small></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded bg-light">
+                                <div class="small text-muted">Created (Web or Email)</div>
+                                <div class="fw-semibold fs-6">{{ ticket.get_request_type_display }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col-md-6">
+                        <div class="p-3 rounded bg-light">
+                            <div class="small text-muted">Assigned Team</div>
+                            <div class="fw-semibold fs-6">{{ ticket.assigned_team.name|default:"—" }}</div>
+                        </div>
+                    </div>
+                    {% if user.is_staff %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded bg-light">
+                                <div class="small text-muted">ServiceNow Sync Status</div>
+                                <div class="fw-semibold fs-6">{{ ticket.get_ticket_creation_status_display }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col-md-6">
+                        <div class="p-3 rounded bg-light">
+                            <div class="small text-muted">ServiceNow Ticket Number</div>
+                            <div class="fw-semibold fs-6">{{ ticket.servicenow_ticket_number|default:"—" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded bg-light">
+                            <div class="small text-muted">ServiceNow Ticket Status</div>
+                            <div class="fw-semibold fs-6" style="text-transform: capitalize;">
+                                {{ ticket.servicenow_ticket_status|default:"—" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="mt-4">
+                <!-- Actions -->
+                <div class="d-flex">
+                    <div style="flex-grow: 1;">
+                        <a href="{% url 'tickets:ticket_list' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Back to Tickets
+                        </a>
+                    </div>
+                    <div>
+                        {% if user.is_staff %}
+                            <a href="{% url 'tickets:retry_ticket' ticket.id %}"
+                               class="btn btn-outline-secondary btn-sm">Re-sync ticket</a>
+                            <a href="{% url 'tickets:ticket_edit' ticket.id %}"
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i> Edit in Ticket
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

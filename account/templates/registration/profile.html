@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container-xxl mt-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="mb-0">My Profile</h4>
+              <small class="text-muted">Manage your account details</small>
+            </div>
+            <div>
+              <a href="{% url 'account:profile' %}" class="btn btn-outline-secondary btn-sm">Refresh</a>
+            </div>
+          </div>
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              {{ form.username }}
+              {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              {{ form.email }}
+              {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">First name</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Last name</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="d-flex gap-2" >
+              <button type="submit" class="btn btn-primary flex-fill">Save changes</button>
+              <a href="{% url 'account:password_change' %}" class="btn btn-outline-secondary flex-fill">Change password</a>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <div>
+            <h6 class="mb-2">Account Info</h6>
+            <dl class="row small">
+              <dt class="col-sm-4">Username</dt><dd class="col-sm-8">{{ request.user.username }}</dd>
+              <dt class="col-sm-4">Name</dt><dd class="col-sm-8">{{ request.user.first_name }} {{ request.user.last_name }}</dd>
+              <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ request.user.email }}</dd>
+              <dt class="col-sm-4">Member since</dt><dd class="col-sm-8">{{ request.user.date_joined|date:"Y-m-d" }}</dd>
+            </dl>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

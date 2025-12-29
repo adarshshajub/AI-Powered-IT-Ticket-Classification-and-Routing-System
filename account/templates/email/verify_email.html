@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>User verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; background-color: #f7f7f7; padding: 20px;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px;">
+        <tr>
+            <td>
+                <h2 style="color: #333;">Verify Your Email</h2>
+
+                <p>Hello {{ user.get_full_name|default:user.username }},</p>
+
+                <p>Please click the button below to verify your email address:</p>
+
+                <div>
+                    <a href="{{ verify_url }}"
+                       style="background-color: #0d6efd; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-size: 16px;">
+                        Verify Email
+                    </a>
+                </div>
+
+                <p>If the button above doesn’t work, copy and paste the link below into your browser:</p>
+
+                <p style="word-break: break-all; color: #0d6efd;">
+                    {{ verify_url }}
+                </p>
+                <br>    
+
+                <p>Thanks,<br><strong>Support Team</strong></p>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

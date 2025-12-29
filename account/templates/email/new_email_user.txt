@@ -1,0 +1,10 @@
+Hello {{ user.get_full_name|default:user.username }},
+
+An account was created for you so we can communicate about your ticket.
+
+Username: {{ user.username }}
+
+Please log in and change your password immediately:
+{{ reset_url }}
+
+If you did not request this, please contact support.

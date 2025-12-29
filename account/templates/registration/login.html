@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <!-- Error messages -->
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors.as_data %}
+            <div class="d-flex alert alert-danger alert-dismissible fade show">
+                {{ error.message }}
+                {% if error.code == 'email_unverified' %}
+                    <form method="post" action="{% url 'account:resend_verification' %}">
+                        {% csrf_token %}
+                        <input type="hidden"
+                               name="email"
+                               class="form-control"
+                               value="{{ error.params.email }}"
+                               required>
+                        <button style="border: none;
+                                       padding-left: 2px;
+                                       background-color: #f7dbdd;
+                                       color:#511a1e">
+                            <u>Click here to resend the verification link.</u>
+                        </button>
+                    </form>
+                {% endif %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                 role="alert">
+                {{ message }}
+                <button class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="d-flex justify-content-center" style="margin-top: 50px;">
+        <div class="card-compact p-4" style="max-width: 500px; width: 100%;">
+            <div class="text-center mb-4">
+                <h3 class="fw-semibold">Welcome Back</h3>
+                <p class="text-muted">Sign in to continue</p>
+            </div>
+            <form method="post" class="needs-validation">
+                {% csrf_token %}
+                <!-- Username -->
+                <div class="mb-3">
+                    <label class="form-label" style="font-size: smaller;">Username</label>
+                    {{ form.username|add_class:"form-control"|attr:"placeholder:Enter username" }}
+                    {% for error in form.username.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <!-- Password -->
+                <div class="mb-3">
+                    <label class="form-label" style="font-size: smaller;">Password</label>
+                    {{ form.password|add_class:"form-control"|attr:"placeholder:Enter password" }}
+                    {% for error in form.password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <!-- Login Button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </form>
+            </div>
+            <!-- Sign up link -->
+            <div class="text-center mt-3">
+                <small class="text-muted">Don't have an account?</small>
+                <a href="{% url 'account:signup' %}" class="ms-1">Sign Up</a>
+                <br>
+                <a href="{% url 'account:password_reset' %}" class="ms-1">Forgot password</a>
+            </div>
+        </div>
+    </div>
+    <style>
+  .card-compact input.form-control {
+    border-radius: .5rem;
+  }
+    </style>
+{% endblock %}

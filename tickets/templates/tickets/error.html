@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Ticket Creation Failed{% endblock %}
+{% block content %}
+    <div style="text-align: center; padding: 50px;">
+        <h1 style="color: #dc3545;">Failed to Create Incident</h1>
+        <div style="background-color: #f8d7da;
+                    border: 1px solid #f5c6cb;
+                    padding: 20px;
+                    margin: 30px auto;
+                    max-width: 600px;
+                    border-radius: 5px">
+            <h2>Ticket Details</h2>
+            <p>
+                <strong>Ticket ID:</strong> #{{ ticket.id }}
+            </p>
+            <p>
+                <strong>Title:</strong> {{ ticket.title }}
+            </p>
+            <p>
+                <strong>Category:</strong> {{ ticket.get_category_display }}
+            </p>
+            <p>
+                <strong>Attempts:</strong> {{ ticket.sync_attempts }}
+            </p>
+            <hr style="border-color: #f5c6cb;">
+            <h3 style="color: #721c24;">Error Message</h3>
+            <div style="background-color: white;
+                        padding: 15px;
+                        border-radius: 5px;
+                        text-align: center;
+                        font-family: monospace;
+                        color: #721c24">{{ error }}</div>
+            <p style="margin-top: 20px; color: #721c24;">
+                <strong>Note:</strong> Your ticket has been saved locally.
+                We will automatically retry syncing to ServiceNow.
+            </p>
+        </div>
+        <div style="margin-top: 30px;">
+            <a href="{% url 'tickets:retry_ticket' ticket.id %}"
+               style="background-color: #ffc107;
+                      color: #000;
+                      padding: 12px 30px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      display: inline-block;
+                      margin: 5px;
+                      font-weight: bold">Retry Now</a>
+            <a href="{% url 'tickets:create_ticket' %}"
+               style="background-color: #6c757d;
+                      color: white;
+                      padding: 12px 30px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      display: inline-block;
+                      margin: 5px">Create New Ticket</a>
+            <a href="{% url 'tickets:ticket_list' %}"
+               style="background-color: #007bff;
+                      color: white;
+                      padding: 12px 30px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      display: inline-block;
+                      margin: 5px">View All Tickets</a>
+        </div>
+    </div>
+{% endblock %}

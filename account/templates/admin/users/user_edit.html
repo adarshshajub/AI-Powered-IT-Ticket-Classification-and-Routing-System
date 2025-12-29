@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Edit User{% endblock %}
+{% block content %}
+  <!-- <div class="container mt-4" style="max-width: 600px;"> -->
+  <h3 class="mb-3">User Management</h3>
+  <br>
+  <div class="d-flex justify-content-center">
+    <div class="card-compact p-4" style="max-width: 800px; width: 100%;">
+      <h3>Edit User — {{ user_obj.username }}</h3>
+      <br>
+      <form method="post" class="needs-validation">
+        {% csrf_token %}
+        <!-- Username -->
+        <div class="mb-3">
+          <label class="form-label" style="font-size: smaller;">Username</label>
+          {{ form.username|add_class:"form-control"|attr:"placeholder:Enter username" }}
+          {% for error in form.username.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label"  style="font-size: smaller;">Email</label>
+          <br>
+          {{ form.email|add_class:"form-control"|attr:"placeholder:Enter email" }}
+          {% for error in form.email.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <!-- Name -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">First name</label>
+            {{ form.first_name|add_class:"form-control" }}
+            {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Last name</label>
+            {{ form.last_name|add_class:"form-control" }}
+            {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+          </div>
+        </div>
+        <div class="row">
+          <!-- Is_active -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label"  style="font-size: smaller;">Active</label>
+            <br>
+            {{ form.is_active|add_class:"form-control-input" }}
+            {% if form.is_active.help_text %}<div class="form-text">{{ form.is_active.help_text|safe }}</div>{% endif %}
+            {% for error in form.is_active.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+          <!-- Is_staff -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label"  style="font-size: smaller;">Staff status</label>
+            <br>
+            {{ form.is_staff|add_class:"form-control-input" }}
+            {% if form.is_staff.help_text %}<div class="form-text">{{ form.is_staff.help_text|safe }}</div>{% endif %}
+            {% for error in form.is_staff.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+          <!-- Is_superuser -->
+          {% if user.is_superuser %}
+            <div class="col-md-6 mb-3">
+              <label class="form-label"  style="font-size: smaller;">Superuser status</label>
+              <br>
+              {{ form.is_superuser |add_class:"form-control-input" }}
+              {% if form.is_superuser.help_text %}<div class="form-text">{{ form.is_superuser.help_text|safe }}</div>{% endif %}
+              {% for error in form.is_superuser.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-2"> 
+          <button class="btn btn-primary flex-fill">Save Changes</button>
+          <a class="btn btn-outline-secondary flex-fill" href="{% url 'account:admin_user_list' %}">User List</a>
+        </div>
+      </form>
+      
+    </div>
+  </div>
+{% endblock %}

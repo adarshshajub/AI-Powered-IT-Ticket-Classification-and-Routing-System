@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Processing Ticket{% endblock %}
+{% block content %}
+    <div style="text-align: center; padding: 50px;">
+        <h1>Processing Your Ticket</h1>
+        <div style="margin: 30px auto; max-width: 600px;">
+            <h2>Ticket #{{ ticket.id }}</h2>
+            <p>
+                <strong>Title:</strong> {{ ticket.title }}
+            </p>
+            <p>
+                <strong>Category:</strong> {{ ticket.get_category_display }}
+            </p>
+            <p>
+                <strong>Status:</strong> <span id="status">{{ ticket.get_ticket_creation_status_display }}</span>
+            </p>
+            <div style="margin-top: 30px;">
+                <div class="spinner"
+                     style="border: 4px solid #f3f3f3;
+                            border-top: 4px solid #3498db;
+                            border-radius: 50%;
+                            width: 40px;
+                            height: 40px;
+                            animation: spin 1s linear infinite;
+                            margin: 0 auto"></div>
+                <p style="margin-top: 20px; color: #666;">
+                    Syncing your ticket to ServiceNow...
+                    <br>
+                    Please wait, this may take a few moments.
+                </p>
+            </div>
+        </div>
+    </div>
+    <style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+    </style>
+    <script>
+const ticketId = {{ ticket.id }};
+
+function checkStatus() {
+    fetch(`/tickets/api/${ticketId}/status/`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('API Status:', data.status);
+
+            const status = String(data.status).toLowerCase();
+            document.getElementById("status").textContent = status.toUpperCase();
+
+            if (status === "created") {
+                window.location.href = `/tickets/${ticketId}/success/`;
+            } else if (status === "failed") {
+                window.location.href = `/tickets/${ticketId}/error/`;
+            }
+        })
+        .catch(err => console.error("Error checking status:", err));
+}
+
+// Call immediately + every 2 seconds
+checkStatus();
+const interval = setInterval(checkStatus, 2000);
+
+// Stop after 5 minutes
+setTimeout(() => { 
+     clearInterval(interval);
+     window.location.href = `/tickets/${ticketId}/error/`;
+    }, 60000);
+    </script>
+{% endblock %}
