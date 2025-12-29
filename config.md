@@ -80,7 +80,7 @@ If you want to override email verification of superuser, run below commands in d
 python manage.py shell
     from django.contrib.auth import get_user_model
     User = get_user_model()  
-    user = User.objects.get(username="adarsh")
+    user = User.objects.get(username="<your-superuser-name>")
     profile = getattr(user, "profile", None)
     profile.email_verified = True
     profile.save(update_fields=["email_verified"])
