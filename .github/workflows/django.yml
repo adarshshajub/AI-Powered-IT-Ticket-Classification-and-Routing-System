@@ -34,4 +34,4 @@ jobs:
         SYSTEM_EMAIL_HOST_USER: ${{ secrets.SYSTEM_EMAIL_HOST_USER }}
         SYSTEM_EMAIL_HOST_PASSWORD: ${{ secrets.SYSTEM_EMAIL_HOST_PASSWORD }}
       run: |
-        python manage.py runserver
+        python manage.py test
