@@ -26,5 +26,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run Tests
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DJANGO_ALLOWED_HOSTS: ${{ secrets.DJANGO_ALLOWED_HOSTS }}
+        EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
+        EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
+        SYSTEM_EMAIL_HOST_USER: ${{ secrets.SYSTEM_EMAIL_HOST_USER }}
+        SYSTEM_EMAIL_HOST_PASSWORD: ${{ secrets.SYSTEM_EMAIL_HOST_PASSWORD }}
       run: |
         python manage.py runserver
