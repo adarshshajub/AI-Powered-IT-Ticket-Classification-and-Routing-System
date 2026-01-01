@@ -25,8 +25,8 @@ docker --version
 
 ## 2. Clone the Repository
 ```bash
-git clone https://github.com/adarshshajub/AI-Powered-IT-Ticket-Classification-and-Routing-System.git
-cd AI-Powered-IT-Ticket-Classification-and-Routing-System
+git clone https://github.com/adarshshajub/ai-it-ticket-triage.git
+cd ai-it-ticket-triage
 ```
 
 ## 3. Create Virtual Environment
